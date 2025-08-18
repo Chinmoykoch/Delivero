@@ -1,7 +1,10 @@
-import 'package:delivero/screens/features/food_detail/widgets/food_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../models/food_model.dart';
+
+List<Map<String, String>> addons = [
+  {"image": "assets/images/categories/fries.png", "name": "Fries"},
+  {"image": "assets/images/categories/soft-drink.png", "name": "Pepsi"},
+];
 
 class FoodDetailScreen extends StatelessWidget {
   const FoodDetailScreen({super.key});
@@ -9,293 +12,456 @@ class FoodDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              clipBehavior: Clip.none, // Allows overflow for the circular image
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 250,
-                  child: Image.asset(
-                    "assets/images/restruants/res-2.jpg",
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Error loading image: $error');
-                      return Container(
-                        width: double.infinity,
-                        height: 250,
-                        color: Colors.grey[300],
-                        child: Icon(Icons.error, color: Colors.red, size: 50),
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  top: 50,
-                  left: 20,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 10,
-                      ),
-                      child: Icon(Icons.arrow_back, size: 24),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 50,
-                  right: 20,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 10,
-                      ),
-                      child: Icon(
-                        Icons.favorite,
-                        color: Color(0xFF00936D),
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
+      backgroundColor: Color(0xFFF7F7F7),
+      appBar: AppBar(backgroundColor: Color(0xFFF7F7F7)),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "KFC Buckets",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "Meal for 2",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.amberAccent,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "4.8",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
 
-                Positioned(
-                  left: 24,
-                  bottom: -55,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF9F9F9),
-                      shape: BoxShape.circle,
+                                Text(
+                                  "54 reviews",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Calories",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      "365 cal",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 30),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Protein",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      "33 g",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(), // pushes image to the right
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          "assets/images/categories/kfc.png",
+                          height: 160, // Increased from 180
+                          width: 200, // Increased from 230
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading import image: $error');
+                            return Container(
+                              height: 160,
+                              width: 220,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey[600],
+                                size: 40,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 0.8,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.delivery_dining_sharp,
+                                  color: Color(0xFF00936D),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Free delivery",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.timer,
+                                  color: Color(0xFF00936D),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "30 mins",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.amberAccent,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "4.8",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+
+                                Text(
+                                  "ratings",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "Description",
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "This meal features a delicious variety of KFC's signature chicken—crispy on the outside, juicy on the inside, and seasoned with a secret blend of 11 herbs and spices. Served with flavorful sides like buttery corn, creamy mashed potatoes, or crispy fries, it’s a perfect combo for two hungry food lovers craving comfort and crunch.",
+                      textAlign: TextAlign.justify,
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "Select addons",
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+
+                  SizedBox(
+                    height: 120,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        'assets/images/restruants/chicken-logo.png',
-                        width: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Error loading logo: $error');
-                          return Icon(
-                            Icons.restaurant,
-                            color: Colors.grey[600],
-                            size: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: ListView.separated(
+                        separatorBuilder:
+                            (context, index) => const SizedBox(width: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: addons.length,
+                        itemBuilder: (context, index) {
+                          return Addons(
+                            image: addons[index]["image"]!,
+                            name: addons[index]["name"]!,
                           );
                         },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total Amount:',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      '₹ 500',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF00936D),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    // onPressed: () {
+                    //   cartController.proceedToCheckout();
+                    // },
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00936D),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Proceed to Checkout',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 60),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Oh Yeah Chicken ",
-                        style: GoogleFonts.montserrat(
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Text(
-                    "69c Jalukbari, Guwahati",
-                    style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.delivery_dining,
-                        color: Color(0xFF00936D),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        "Free Delivery",
-                        style: GoogleFonts.montserrat(
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Icon(Icons.timer, color: Color(0xFF00936D), size: 18),
-                      const SizedBox(width: 5),
-                      Text(
-                        "15-20 mins",
-                        style: GoogleFonts.montserrat(
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black12, width: 0.8),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, color: Colors.black38, size: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Search for oh yeah chicken's speciality",
-                            style: GoogleFonts.montserrat(
-                              textStyle: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black26,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Recommended for you",
-                    style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                        ),
-                    itemCount: 6,
-                    itemBuilder: (context, index) {
-                      final food = _getFoodByIndex(index);
-                      if (food != null) {
-                        return RestaurantFoodCard(food: food);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  String _getFoodName(int index) {
-    final foodNames = [
-      "Chicken Bowl",
-      "Grilled Chicken",
-      "Chicken Wings",
-      "Chicken Burger",
-      "Chicken Pizza",
-      "Chicken Sandwich",
-    ];
-    return foodNames[index % foodNames.length];
-  }
+class Addons extends StatelessWidget {
+  const Addons({super.key, required this.image, required this.name});
 
-  String _getFoodPrice(int index) {
-    final prices = ["₹ 240", "₹ 180", "₹ 320", "₹ 150", "₹ 280", "₹ 120"];
-    return prices[index % prices.length];
-  }
+  final String image, name;
 
-  String _getFoodImage(int index) {
-    final images = [
-      "assets/images/categories/food-2.png",
-      "assets/images/categories/food-1.png",
-      "assets/images/categories/food-3.jpg",
-      "assets/images/categories/chicken-2.png",
-      "assets/images/restruants/res-2.jpg",
-      "assets/images/categories/chicken-1.png",
-    ];
-    return images[index % images.length];
-  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300, width: 0.8),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Image.asset(
+                  image,
+                  height: 80,
+                  width: 100,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error loading food-1 image: $error');
+                    return Container(
+                      height: 80,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[600],
+                        size: 30,
+                      ),
+                    );
+                  },
+                ),
 
-  FoodModel? _getFoodByIndex(int index) {
-    final foodNames = [
-      "Chicken Bowl",
-      "Grilled Chicken",
-      "Chicken Wings",
-      "Chicken Burger",
-      "Chicken Pizza",
-      "Chicken Sandwich",
-    ];
-    final prices = ["₹ 240", "₹ 180", "₹ 320", "₹ 150", "₹ 280", "₹ 120"];
-    final images = [
-      "assets/images/categories/food-2.png",
-      "assets/images/categories/food-1.png",
-      "assets/images/categories/food-3.jpg",
-      "assets/images/categories/chicken-2.png",
-      "assets/images/restruants/res-2.jpg",
-      "assets/images/categories/chicken-1.png",
-    ];
+                Text(
+                  name,
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 85,
+            right: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300, width: 0.8),
 
-    if (index < foodNames.length) {
-      return FoodModel(
-        id: (index + 1).toString(),
-        name: foodNames[index],
-        price: prices[index],
-        imagePath: images[index],
-        description: "Delicious ${foodNames[index].toLowerCase()}",
-        category: "Chicken",
-        rating: 4.0 + (index * 0.1),
-        reviews: 20 + (index * 10),
-        restaurant: "The Shark Restaurant",
-        deliveryTime: "30-35 mins",
-      );
-    }
-    return null;
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.add, color: Colors.black),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

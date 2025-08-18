@@ -1,11 +1,17 @@
 import 'package:delivero/navigation.dart';
+import 'package:delivero/screens/authentication/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/cart_controller.dart';
+import 'utils/permission_handler.dart';
 
-void main() {
+void main() async {
   // Initialize controllers
   Get.put(CartController());
+
+  // Test geolocator plugin availability
+  bool isGeolocatorAvailable = await PermissionHandler.isGeolocatorAvailable();
+  print('Geolocator plugin available: $isGeolocatorAvailable');
 
   runApp(const MyApp());
 }
@@ -17,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'Delivero',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -37,7 +43,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      home: const Navigation(),
+      home: const LoginScreen(),
     );
   }
 }

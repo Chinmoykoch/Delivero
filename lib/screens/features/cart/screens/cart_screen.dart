@@ -1,3 +1,5 @@
+import 'package:delivero/screens/authentication/screens/register.dart';
+import 'package:delivero/screens/features/checkout/checkout.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -433,9 +435,10 @@ class CartScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        cartController.proceedToCheckout();
-                      },
+                      // onPressed: () {
+                      //   cartController.proceedToCheckout();
+                      // },
+                      onPressed: () => Get.to(() => PaymentScreen()),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00936D),
                         padding: const EdgeInsets.symmetric(vertical: 16),

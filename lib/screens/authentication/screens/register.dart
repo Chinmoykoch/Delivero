@@ -1,29 +1,48 @@
 import 'package:delivero/navigation.dart';
-import 'package:delivero/screens/authentication/screens/register.dart';
+import 'package:delivero/screens/features/checkout/checkout.dart';
+import 'package:delivero/screens/authentication/screens/login.dart';
 import 'package:delivero/screens/authentication/service/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // Name validation
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Name is required';
+    }
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    return null;
   }
 
   // Email validation
@@ -48,8 +67,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  // Handle login
-  Future<void> _handleLogin() async {
+  // Confirm password validation
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  // Handle registration
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -59,16 +89,17 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final result = await UserService.loginUser(
-        emailController.text.trim(),
-        passwordController.text,
+      final result = await UserService.registerUser(
+        name: nameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text,
       );
 
       if (result['success']) {
         // Show success message
         Get.snackbar(
           'Success',
-          result['message'] ?? 'Login successful',
+          result['message'] ?? 'Registration successful',
           backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
@@ -80,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Show error message
         Get.snackbar(
           'Error',
-          result['message'] ?? 'Login failed',
+          result['message'] ?? 'Registration failed',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
@@ -125,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const SizedBox(height: 40),
                       Text(
-                        "Welcome Back",
+                        "Create Account",
                         style: GoogleFonts.montserrat(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -135,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        "Sign in to continue with Delivero",
+                        "Join Delivero and get your food delivered",
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -144,6 +175,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
+                      TextFormField(
+                        controller: nameController,
+                        keyboardType: TextInputType.text,
+                        validator: _validateName,
+                        decoration: InputDecoration(
+                          hintText: "Enter your full name",
+                          hintStyle: GoogleFonts.montserrat(),
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            color: themeGreen,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.black12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: themeGreen.withOpacity(0.8),
+                              width: 1.5,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.black26),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       TextFormField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -186,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: _obscurePassword,
                         validator: _validatePassword,
                         decoration: InputDecoration(
-                          hintText: "Enter your password",
+                          hintText: "Create a password",
                           hintStyle: GoogleFonts.montserrat(),
                           prefixIcon: Icon(
                             Icons.lock_outline,
@@ -230,33 +298,62 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      // const SizedBox(height: 12),
-                      // Align(
-                      //   alignment: Alignment.centerRight,
-                      //   child: TextButton(
-                      //     onPressed: () {
-                      //       // TODO: Implement forgot password functionality
-                      //       Get.snackbar(
-                      //         'Info',
-                      //         'Forgot password feature coming soon!',
-                      //         backgroundColor: Colors.blue,
-                      //         colorText: Colors.white,
-                      //       );
-                      //     },
-                      //     child: Text(
-                      //       'Forgot Password?',
-                      //       style: GoogleFonts.montserrat(
-                      //         color: themeGreen,
-                      //         fontWeight: FontWeight.w500,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
+                        validator: _validateConfirmPassword,
+                        decoration: InputDecoration(
+                          hintText: "Confirm your password",
+                          hintStyle: GoogleFonts.montserrat(),
+                          prefixIcon: Icon(
+                            Icons.lock_outline,
+                            color: themeGreen,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: themeGreen,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.black12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: themeGreen.withOpacity(0.8),
+                              width: 1.5,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.black26),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.red),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: _isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: themeGreen,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -277,7 +374,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   )
                                   : Text(
-                                    'Login',
+                                    'Register',
                                     style: GoogleFonts.montserrat(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -291,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account? ",
+                            "Already have an account? ",
                             style: GoogleFonts.montserrat(
                               color: Colors.black54,
                             ),
@@ -301,10 +398,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _isLoading
                                     ? null
                                     : () {
-                                      Get.to(() => RegisterScreen());
+                                      Get.to(() => LoginScreen());
                                     },
                             child: Text(
-                              'Register',
+                              'Login',
                               style: GoogleFonts.montserrat(
                                 color: themeGreen,
                                 fontWeight: FontWeight.w600,

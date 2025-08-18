@@ -5,6 +5,13 @@ class OrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      backgroundColor: Color(0xFFF7F7F7),
+      appBar: AppBar(backgroundColor: Color(0xFFF7F7F7)),
+      body: SingleChildScrollView(child: Column(children: [
+            
+          ],
+        )),
+    );
   }
 }

@@ -1,8 +1,81 @@
 import 'package:delivero/screens/features/food_detail/food_detail_screen.dart';
+import 'package:delivero/screens/features/food_detail/restaurant_detail_screen.dart';
 import 'package:delivero/screens/features/homescreen/widgets/homescreen_header.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+List<Map<String, String>> categories = [
+  {"image": "assets/images/categories/burger.png", "name": "Burgers"},
+  {"image": "assets/images/categories/pizza.png", "name": "Pizza"},
+  {"image": "assets/images/categories/fries.png", "name": "Fries"},
+  {"image": "assets/images/categories/soft-drink.png", "name": "Soft-Drink"},
+];
+
+List<Map<String, String>> hotDeals = [
+  {
+    "image": "assets/images/categories/chicken-2.png",
+    "rating": "4.1",
+    "reviews": "50",
+    "name": "Crispy Parmesan-Crusted Chicken with Garlic-Herb Butter",
+    "restaurant": "The Shark Restaurant",
+    "time": "30-35 mins",
+  },
+  {
+    "image": "assets/images/categories/🖼 Import image (2).png",
+    "rating": "4.8",
+    "reviews": "23",
+    "name": "Crispy Parmesan-Crusted Chicken with Garlic-Herb Butter",
+    "restaurant": "KFC Maligaon",
+    "time": "30-35 mins",
+  },
+  {
+    "image": "assets/images/categories/🖼 Import image (9).png",
+    "rating": "4.8",
+    "reviews": "48",
+    "name": "Crispy Parmesan-Crusted Chicken with Garlic-Herb Butter",
+    "restaurant": "Burger King Adabari",
+    "time": "25 mins",
+  },
+];
+
+List<Map<String, String>> recommended = [
+  {
+    "restautantimage": "assets/images/categories/chicken-1.png",
+    "restautanttime": "40-45 mins",
+    "name": "The Royal Paradise",
+    "restautantrating": "4.2",
+    "restautantreviews": "35",
+  },
+  {
+    "restautantimage": "assets/images/categories/chicken-2.png",
+    "restautanttime": "35-40 mins",
+    "name": "Foodie's Paradise",
+    "restautantrating": "4.5",
+    "restautantreviews": "54",
+  },
+  {
+    "restautantimage": "assets/images/categories/food-2.png",
+    "restautanttime": "30 mins",
+    "name": "The Royal Awas",
+    "restautantrating": "4.2",
+    "restautantreviews": "50",
+  },
+  {
+    "restautantimage": "assets/images/restruants/res-1.png",
+    "restautanttime": "45 mins",
+    "name": "The North Kitchen",
+    "restautantrating": "4.2",
+    "restautantreviews": "35",
+  },
+  {
+    "restautantimage": "assets/images/restruants/res-2.jpg",
+    "restautanttime": "35-40 mins",
+    "name": "Elaichi",
+    "restautantrating": "4.5",
+    "restautantreviews": "35",
+  },
+];
 
 class Homescreen extends StatelessWidget {
   const Homescreen({super.key});
@@ -10,6 +83,7 @@ class Homescreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF7F7F7),
       body: Column(
         children: [
           // Fixed header at the top
@@ -97,26 +171,21 @@ class Homescreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Text("All Categories", style: TextStyle(fontSize: 18)),
-                    //     Row(
-                    //       children: [
-                    //         Text("See All", style: TextStyle(fontSize: 16)),
-                    //         const SizedBox(width: 5),
-                    //         Icon(Icons.arrow_forward_ios, size: 16),
-                    //       ],
-                    //     ),
-                    //   ],
-                    //),
-                    Row(
-                      children: [
-                        Categories(),
-                        const SizedBox(width: 10),
-                        Categories2(key: key),
-                      ],
+                    SizedBox(
+                      height: 100,
+                      child: ListView.separated(
+                        separatorBuilder:
+                            (context, index) => const SizedBox(width: 16),
+                        itemCount: categories.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder:
+                            (context, index) => Categories(
+                              image: categories[index]["image"]!,
+                              name: categories[index]["name"]!,
+                            ),
+                      ),
                     ),
+
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,7 +230,7 @@ class Homescreen extends StatelessWidget {
                       child: ListView.separated(
                         separatorBuilder:
                             (context, index) => const SizedBox(width: 16),
-                        itemCount: 4,
+                        itemCount: hotDeals.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder:
                             (context, index) => GestureDetector(
@@ -169,14 +238,12 @@ class Homescreen extends StatelessWidget {
                                 Get.to(() => const FoodDetailScreen());
                               },
                               child: HotDealsCard(
-                                image:
-                                    "assets/images/categories/🖼 Import image (2).png",
-                                rating: "4.2",
-                                reviews: "54",
-                                name:
-                                    "Crispy Parmesan-Crusted Chicken with Garlic-Herb Butter",
-                                restaurant: "The Shark Restaurant",
-                                time: "30-35 mins",
+                                image: hotDeals[index]["image"]!,
+                                rating: hotDeals[index]["rating"]!,
+                                reviews: hotDeals[index]["reviews"]!,
+                                name: hotDeals[index]["name"]!,
+                                restaurant: hotDeals[index]["restaurant"]!,
+                                time: hotDeals[index]["time"]!,
                               ),
                             ),
                       ),
@@ -271,18 +338,26 @@ class Homescreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Column(
-                      children: List.generate(
-                        4,
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: ResturantCard(
-                            restautantimage:
-                                "assets/images/categories/chicken-2.png",
-                            restautanttime: "35-40 mins",
-                            name: "The Royal Paradise",
-                            restautantrating: "4.5",
-                            restautantreviews: "54",
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const RestaurantDetailScreen());
+                      },
+                      child: Column(
+                        children: List.generate(
+                          recommended.length,
+                          (index) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: ResturantCard(
+                              name: recommended[index]["name"]!,
+                              restautantrating:
+                                  recommended[index]["restautantrating"]!,
+                              restautantreviews:
+                                  recommended[index]["restautantreviews"]!,
+                              restautanttime:
+                                  recommended[index]["restautanttime"]!,
+                              restautantimage:
+                                  recommended[index]["restautantimage"]!,
+                            ),
                           ),
                         ),
                       ),
@@ -574,97 +649,31 @@ class HotDealsCard extends StatelessWidget {
 }
 
 class Categories extends StatelessWidget {
-  const Categories({super.key});
+  const Categories({super.key, required this.image, required this.name});
 
+  final String image, name;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        color: Color(0xFF00936D),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ClipRRect(
-                child: Image.asset(
-                  "assets/images/categories/burger.png",
-
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
           ),
-          const SizedBox(width: 5),
-          Text(
-            "Hamburgers",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: ClipRRect(child: Image.asset(image, fit: BoxFit.cover)),
           ),
-          const SizedBox(width: 5),
-        ],
-      ),
-    );
-  }
-}
-
-class Categories2 extends StatelessWidget {
-  const Categories2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(31, 110, 110, 110),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ClipRRect(
-                child: Image.asset(
-                  "assets/images/categories/pizza.png",
-
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            "Pizza",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(width: 5),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Burgers",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

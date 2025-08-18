@@ -32,7 +32,7 @@ class Navigation extends StatelessWidget {
             ),
             NavigationDestination(
               icon: Icon(Icons.restaurant_sharp),
-              label: 'Dine In',
+              label: 'Dine Out',
             ),
             const NavigationDestination(
               icon: Icon(Icons.person),
