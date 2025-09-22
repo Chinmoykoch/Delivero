@@ -33,7 +33,7 @@ Delivero is designed to provide a smooth and simple food-ordering experience wit
 
 ---
 
-## 📸 Screenshots
+## 📸 App Screens
 
 <p align="center">
   <img src="assets/images/app-screen/login.jpeg" alt="Auth Screen" width="250"/>
@@ -47,8 +47,6 @@ Delivero is designed to provide a smooth and simple food-ordering experience wit
   <img src="assets/images/app-screen/profile.jpeg" alt="Profile Screen" width="250"/>
   <img src="assets/images/app-screen/checkout.jpeg" alt="Profile Screen" width="250"/>
 </p>
-
-*(Place your app screenshots in a `/screenshots` folder and update the image paths above.)*
 
 ---
 
