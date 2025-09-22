@@ -7,7 +7,7 @@ class UserService {
   static String? _authToken;
 
   // Base URL for your API
-  static const String baseUrl = "http://192.168.34.229:8000/api/v1/users";
+  static const String baseUrl = "http://192.168.1.6:8000/api/v1/users";
 
   // Get current user
   static UserModel? getCurrentUser() {

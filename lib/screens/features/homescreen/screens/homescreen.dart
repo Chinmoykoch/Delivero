@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../dine-in/models/restaurant-models.dart';
+import '../../dine-in/service/restaurant-service.dart';
+
 List<Map<String, String>> categories = [
   {"image": "assets/images/categories/burger.png", "name": "Burgers"},
   {"image": "assets/images/categories/pizza.png", "name": "Pizza"},
@@ -77,8 +80,46 @@ List<Map<String, String>> recommended = [
   },
 ];
 
-class Homescreen extends StatelessWidget {
+class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
+
+  @override
+  State<Homescreen> createState() => _HomescreenState();
+}
+
+class _HomescreenState extends State<Homescreen> {
+  List<RestaurantModel> restaurants = [];
+  bool isLoadingRestaurants = false;
+  String restaurantError = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRestaurants();
+  }
+
+  Future<void> _loadRestaurants() async {
+    try {
+      setState(() {
+        isLoadingRestaurants = true;
+        restaurantError = '';
+      });
+
+      final loadedRestaurants = await RestaurantApiService.getAllRestaurants();
+      
+      setState(() {
+        restaurants = loadedRestaurants;
+        isLoadingRestaurants = false;
+      });
+    } catch (e) {
+      setState(() {
+        restaurantError = 'Failed to load restaurants: $e';
+        isLoadingRestaurants = false;
+        restaurants = RestaurantApiService.getFallbackRestaurants();
+      });
+      print('Error loading restaurants: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -338,30 +379,56 @@ class Homescreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => const RestaurantDetailScreen());
-                      },
-                      child: Column(
-                        children: List.generate(
-                          recommended.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: ResturantCard(
-                              name: recommended[index]["name"]!,
-                              restautantrating:
-                                  recommended[index]["restautantrating"]!,
-                              restautantreviews:
-                                  recommended[index]["restautantreviews"]!,
-                              restautanttime:
-                                  recommended[index]["restautanttime"]!,
-                              restautantimage:
-                                  recommended[index]["restautantimage"]!,
-                            ),
+                    // Restaurant Cards Section
+                    if (isLoadingRestaurants)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (restaurantError.isNotEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                              const SizedBox(height: 8),
+                              Text(
+                                restaurantError,
+                                style: TextStyle(color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: _loadRestaurants,
+                                child: Text('Retry'),
+                              ),
+                            ],
                           ),
                         ),
+                      )
+                    else
+                      Column(
+                        children: restaurants.map((restaurant) => 
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(() => RestaurantDetailScreen(restaurant: restaurant));
+                              },
+                              child: RestaurantCardApi(
+                                restaurant: restaurant,
+                                // Keep static data for UI consistency
+                                restautantrating: "4.2",
+                                restautantreviews: "35",
+                                restautanttime: "30-35 mins",
+                              ),
+                            ),
+                          ),
+                        ).toList(),
                       ),
-                    ),
                   ], // <-- closes children of inner Column
                 ), // <-- closes inner Column
               ), // <-- closes Padding
@@ -669,11 +736,175 @@ class Categories extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+// New RestaurantCard widget that works with API data
+class RestaurantCardApi extends StatelessWidget {
+  const RestaurantCardApi({
+    super.key,
+    required this.restaurant,
+    required this.restautantrating,
+    required this.restautantreviews,
+    required this.restautanttime,
+  });
+
+  final RestaurantModel restaurant;
+  final String restautantrating, restautantreviews, restautanttime;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+              child: restaurant.img_url.isNotEmpty && restaurant.img_url.startsWith('http')
+                  ? Image.network(
+                      restaurant.img_url,
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.18,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        print('Error loading restaurant image: $error');
+                        return _buildFallbackImage(context);
+                      },
+                    )
+                  : _buildFallbackImage(context),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF7F7F7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Icon(
+                    Icons.favorite,
+                    size: 20,
+                    color: Color(0xFF00936D),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 136,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF7F7F7),
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(12),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 5),
+                      Text(
+                        restautanttime,
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Icon(
+                        Icons.delivery_dining,
+                        size: 20,
+                        color: Color(0xFF00936D),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
         Text(
-          "Burgers",
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          restaurant.name,
+          style: GoogleFonts.montserrat(
+            textStyle: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Icon(Icons.star, color: Colors.amber, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              restautantrating,
+              style: TextStyle(fontSize: 12, color: Colors.amber),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "($restautantreviews reviews)",
+              style: TextStyle(fontSize: 12, color: Colors.black),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildFallbackImage(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height * 0.18,
+      color: Colors.grey[300],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.restaurant,
+            size: 50,
+            color: Colors.grey[600],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            restaurant.name,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

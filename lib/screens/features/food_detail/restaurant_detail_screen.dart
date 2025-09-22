@@ -3,12 +3,79 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/food_model.dart';
+import '../../../services/restaurant_food_service.dart';
+import '../dine-in/models/restaurant-models.dart';
 
-class RestaurantDetailScreen extends StatelessWidget {
-  const RestaurantDetailScreen({super.key});
+class RestaurantDetailScreen extends StatefulWidget {
+  final RestaurantModel? restaurant;
+  
+  const RestaurantDetailScreen({super.key, this.restaurant});
+
+  @override
+  State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+}
+
+class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
+  List<FoodModel> foods = [];
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFoods();
+  }
+
+  Future<void> _loadFoods() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+
+      List<FoodModel> loadedFoods = [];
+      
+      if (widget.restaurant?.id != null) {
+        // Try to load foods for this specific restaurant
+        loadedFoods = await RestaurantFoodService.getFoodsByRestaurantId(widget.restaurant!.id);
+      }
+      
+      // If no foods found for restaurant or no restaurant specified, load fallback foods
+      if (loadedFoods.isEmpty) {
+        loadedFoods = RestaurantFoodService.getFallbackFoods();
+      }
+
+      setState(() {
+        foods = loadedFoods;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to load foods: $e';
+        isLoading = false;
+        foods = RestaurantFoodService.getFallbackFoods();
+      });
+      print('Error loading foods: $e');
+    }
+  }
+
+  // Get restaurant data (either from parameter or fallback)
+  RestaurantModel get restaurantData {
+    return widget.restaurant ?? RestaurantModel(
+      id: 'fallback',
+      name: 'Oh Yeah Chicken',
+      logoUrl: 'assets/images/restruants/chicken-logo.png',
+      bannerUrl: 'assets/images/restruants/res-2.jpg',
+      lat: 26.1445,
+      lng: 91.7362,
+      address: '69c Jalukbari, Guwahati',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final restaurant = restaurantData;
+    
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -20,20 +87,31 @@ class RestaurantDetailScreen extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   height: 250,
-                  child: Image.asset(
-                    "assets/images/restruants/res-2.jpg",
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Error loading image: $error');
-                      return Container(
-                        width: double.infinity,
-                        height: 250,
-                        color: Colors.grey[300],
-                        child: Icon(Icons.error, color: Colors.red, size: 50),
-                      );
-                    },
-                  ),
+                  child: restaurant.bannerUrl != null && restaurant.bannerUrl!.startsWith('http')
+                      ? Image.network(
+                          restaurant.bannerUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: Colors.grey[200],
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading banner image: $error');
+                            return _buildFallbackBanner();
+                          },
+                        )
+                      : _buildFallbackBanner(),
                 ),
                 Positioned(
                   top: 50,
@@ -76,7 +154,6 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Positioned(
                   left: 24,
                   bottom: -55,
@@ -89,25 +166,24 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        'assets/images/restruants/chicken-logo.png',
-                        width: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Error loading logo: $error');
-                          return Icon(
-                            Icons.restaurant,
-                            color: Colors.grey[600],
-                            size: 40,
-                          );
-                        },
-                      ),
+                      child: restaurant.logoUrl != null && restaurant.logoUrl!.startsWith('http')
+                          ? ClipOval(
+                              child: Image.network(
+                                restaurant.logoUrl!,
+                                width: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading logo: $error');
+                                  return _buildFallbackLogo();
+                                },
+                              ),
+                            )
+                          : _buildFallbackLogo(),
                     ),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 60),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -117,7 +193,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "Oh Yeah Chicken ",
+                        restaurant.name,
                         style: GoogleFonts.montserrat(
                           textStyle: TextStyle(
                             fontSize: 16,
@@ -128,9 +204,8 @@ class RestaurantDetailScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   Text(
-                    "69c Jalukbari, Guwahati",
+                    restaurant.address.isNotEmpty ? restaurant.address : "69c Jalukbari, Guwahati",
                     style: GoogleFonts.montserrat(
                       textStyle: TextStyle(
                         fontSize: 14,
@@ -187,7 +262,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                           Icon(Icons.search, color: Colors.black38, size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            "Search for oh yeah chicken's speciality",
+                            "Search for ${restaurant.name.toLowerCase()}'s speciality",
                             style: GoogleFonts.montserrat(
                               textStyle: TextStyle(
                                 fontSize: 12,
@@ -211,24 +286,62 @@ class RestaurantDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
+                  const SizedBox(height: 16),
+                  
+                  // Display loading, error or foods
+                  if (isLoading)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else if (errorMessage.isNotEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                            const SizedBox(height: 8),
+                            Text(
+                              errorMessage,
+                              style: TextStyle(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: _loadFoods,
+                              child: Text('Retry'),
+                            ),
+                          ],
                         ),
-                    itemCount: 6,
-                    itemBuilder: (context, index) {
-                      final food = _getFoodByIndex(index);
-                      if (food != null) {
-                        return RestaurantFoodCard(food: food);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                      ),
+                    )
+                  else if (foods.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          'No foods available for this restaurant',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.75,
+                      ),
+                      itemCount: foods.length,
+                      itemBuilder: (context, index) {
+                        return RestaurantFoodCard(food: foods[index]);
+                      },
+                    ),
                 ],
               ),
             ),
@@ -238,134 +351,46 @@ class RestaurantDetailScreen extends StatelessWidget {
     );
   }
 
-  String _getFoodName(int index) {
-    final foodNames = [
-      "Chicken Bowl",
-      "Grilled Chicken",
-      "Chicken Wings",
-      "Chicken Burger",
-      "Chicken Pizza",
-      "Chicken Sandwich",
-    ];
-    return foodNames[index % foodNames.length];
-  }
-
-  String _getFoodPrice(int index) {
-    final prices = ["₹ 240", "₹ 180", "₹ 320", "₹ 150", "₹ 280", "₹ 120"];
-    return prices[index % prices.length];
-  }
-
-  String _getFoodImage(int index) {
-    final images = [
-      "assets/images/categories/food-2.png",
-      "assets/images/categories/food-1.png",
-      "assets/images/categories/food-3.jpg",
-      "assets/images/categories/chicken-2.png",
+  Widget _buildFallbackBanner() {
+    return Image.asset(
       "assets/images/restruants/res-2.jpg",
-      "assets/images/categories/chicken-1.png",
-    ];
-    return images[index % images.length];
+      fit: BoxFit.cover,
+      width: double.infinity,
+      errorBuilder: (context, error, stackTrace) {
+        print('Error loading fallback banner: $error');
+        return Container(
+          width: double.infinity,
+          height: 250,
+          color: Colors.grey[300],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.restaurant, color: Colors.grey[600], size: 50),
+              const SizedBox(height: 8),
+              Text(
+                'Restaurant Image',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  FoodModel? _getFoodByIndex(int index) {
-    final foodNames = [
-      "Chicken Bowl",
-      "Grilled Chicken",
-      "Chicken Wings",
-      "Chicken Burger",
-      "Chicken Pizza",
-      "Chicken Sandwich",
-    ];
-    final prices = ["₹ 240", "₹ 180", "₹ 320", "₹ 150", "₹ 280", "₹ 120"];
-    final images = [
-      "assets/images/categories/food-2.png",
-      "assets/images/categories/food-1.png",
-      "assets/images/categories/food-3.jpg",
-      "assets/images/categories/chicken-2.png",
-      "assets/images/restruants/res-2.jpg",
-      "assets/images/categories/chicken-1.png",
-    ];
-
-    if (index < foodNames.length) {
-      return FoodModel(
-        id: (index + 1).toString(),
-        name: foodNames[index],
-        price: prices[index],
-        imagePath: images[index],
-        description: "Delicious ${foodNames[index].toLowerCase()}",
-        category: "Chicken",
-        rating: 4.0 + (index * 0.1),
-        reviews: 20 + (index * 10),
-        restaurant: "The Shark Restaurant",
-        deliveryTime: "30-35 mins",
-      );
-    }
-    return null;
+  Widget _buildFallbackLogo() {
+    return Image.asset(
+      'assets/images/restruants/chicken-logo.png',
+      width: 80,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        print('Error loading fallback logo: $error');
+        return Icon(
+          Icons.restaurant,
+          color: Colors.grey[600],
+          size: 40,
+        );
+      },
+    );
   }
 }
-
-
-
-//  Container(
-//               padding: const EdgeInsets.all(16),
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.1),
-//                     blurRadius: 10,
-//                     offset: const Offset(0, -2),
-//                   ),
-//                 ],
-//               ),
-//               child: Column(
-//                 children: [
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Text(
-//                         'Total Amount:',
-//                         style: GoogleFonts.montserrat(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       Text(
-//                         '₹ ${cartController.getCartTotal().toStringAsFixed(0)}',
-//                         style: GoogleFonts.montserrat(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.w700,
-//                           color: const Color(0xFF00936D),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 16),
-//                   SizedBox(
-//                     width: double.infinity,
-//                     child: ElevatedButton(
-//                       // onPressed: () {
-//                       //   cartController.proceedToCheckout();
-//                       // },
-//                       onPressed: () => Get.to(() => LoginScreen()),
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: const Color(0xFF00936D),
-//                         padding: const EdgeInsets.symmetric(vertical: 16),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(12),
-//                         ),
-//                       ),
-//                       child: Text(
-//                         'Proceed to Checkout',
-//                         style: GoogleFonts.montserrat(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.white,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
